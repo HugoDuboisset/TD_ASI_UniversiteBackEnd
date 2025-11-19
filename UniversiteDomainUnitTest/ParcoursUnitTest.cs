@@ -1,14 +1,15 @@
-﻿using Moq;
+﻿using System.Linq.Expressions;
+using Moq;
 using UniversiteDomain.DataAdapters;
 using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Entities;
-using UniversiteDomain.UseCases.EtudiantUseCases;
-using UniversiteDomain.UseCases.ParcoursUseCases;
 using UniversiteDomain.UseCases.ParcoursUseCases.EtudiantDansParcours;
-using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.UseCases.ParcoursUseCase.Create;
+using UniversiteDomain.UseCases.ParcoursUseCases.UeDansParcours;
+using UniversiteDomain.Exceptions.ParcoursExceptions;
+using UniversiteDomain.Exceptions.UeExceptions;
 
-namespace UniversiteDomainUnitTests;
+namespace UniversiteDomainUnitTest;
 
 public class ParcoursUnitTest
 {
