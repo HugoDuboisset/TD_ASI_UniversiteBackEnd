@@ -1,6 +1,7 @@
-﻿using UniversiteDomain.DataAdapters;
-using UniversiteEFDataProvider.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using UniversiteDomain.DataAdapters;
 using UniversiteDomain.Entities;
+using UniversiteEFDataProvider.Data;
 
 namespace UniversiteEFDataProvider.Repositories;
 
@@ -15,9 +16,15 @@ public class EtudiantRepository(UniversiteDbContext context) : Repository<Etudia
         e.ParcoursSuivi = p;
         await Context.SaveChangesAsync();
     }
-    
+
     public async Task AffecterParcoursAsync(Etudiant etudiant, Parcours parcours)
     {
-        await AffecterParcoursAsync(etudiant.Id, parcours.Id); 
+        await AffecterParcoursAsync(etudiant.Id, parcours.Id);
+    }
+    
+    public async Task<Etudiant?> FindEtudiantCompletAsync(long idEtudiant)
+    {
+        ArgumentNullException.ThrowIfNull(Context.Etudiants);
+        return await Context.Etudiants.Include(e => e.ParcoursSuivi).Include(e => e.NotesObtenues).ThenInclude(n=>n.Ue).FirstOrDefaultAsync(e => e.Id == idEtudiant);
     }
 }
