@@ -22,7 +22,6 @@ public class CreateUniversiteUserUseCase(IRepositoryFactory factory)
         ArgumentNullException.ThrowIfNull(factory);
         ArgumentOutOfRangeException.ThrowIfEqual(
             role.Equals(Roles.Scolarite) || role.Equals(Roles.Responsable) || role.Equals(Roles.Etudiant), false);
-        // On vérifie que l'étudiant existe
         if (etudiant != null)
         {
             IEtudiantRepository etudiantRepository = factory.EtudiantRepository();

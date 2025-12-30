@@ -17,7 +17,6 @@ public class ParcoursRepository(UniversiteDbContext context) : Repository<Parcou
         return await GetNombreEtudiantsAsync(parcours.Id);
     }
 
-    // Méthodes AddEtudiantAsync
     public async Task<Parcours> AddEtudiantAsync(long idParcours, long idEtudiant)
     {
         ArgumentNullException.ThrowIfNull(Context.Parcours);
@@ -72,7 +71,6 @@ public class ParcoursRepository(UniversiteDbContext context) : Repository<Parcou
         return parcours;
     }
 
-    // Méthodes AddUeAsync
     public async Task<Parcours> AddUeAsync(long idParcours, long idUe)
     {
         ArgumentNullException.ThrowIfNull(Context.Parcours);

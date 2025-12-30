@@ -29,13 +29,9 @@ public class CreateParcoursUseCase(IRepositoryFactory repositoryFactory)
         var repo = repositoryFactory.ParcoursRepository();
         ArgumentNullException.ThrowIfNull(repo);
 
-        // On recherche un parcours avec le même code
         List<Parcours> existe = await repo.FindByConditionAsync(p => p.NomParcours.Equals(parcours.NomParcours));
 
-        // Si un parcours avec le même code existe déjà, on lève une exception personnalisée
         if (existe is { Count: > 0 }) throw new DuplicateNomParcoursException(parcours.NomParcours + " - ce code de parcours est déjà affecté à un parcours");
-
-        // Le métier définit que les noms doivent contenir au moins 2 caractères
         if (parcours.NomParcours.Length < 2) throw new InvalidNomParcoursException(parcours.NomParcours + " incorrect - Le nom d'un parcours doit contenir au moins 2 caractères");
     }
 }

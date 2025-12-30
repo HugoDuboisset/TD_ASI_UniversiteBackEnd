@@ -6,62 +6,6 @@ using UniversiteEFDataProvider.Data;
 
 namespace UniversiteEFDataProvider.Repositories;
 
-//  ANCIEN CODE (hérite pas de Repository<Ue>, duplication de code)
-/*
-public class UeRepository(UniversiteDbContext context) : IUeRepository
-{
-    protected readonly UniversiteDbContext Context = context;
-
-    public async Task<Ue?> GetByIdAsync(Guid id)  // 
-    {
-        ArgumentNullException.ThrowIfNull(Context.Ues);
-        return await Context.Ues.FindAsync(id);
-    }
-
-    public async Task<IEnumerable<Ue>> GetAllAsync()
-    {
-        ArgumentNullException.ThrowIfNull(Context.Ues);
-        return await Context.Ues.ToListAsync();
-    }
-
-    public async Task AddAsync(Ue ue)
-    {
-        ArgumentNullException.ThrowIfNull(Context.Ues);
-        ArgumentNullException.ThrowIfNull(ue);
-        Context.Ues.Add(ue);
-        await Context.SaveChangesAsync();
-    }
-
-    public async Task UpdateAsync(Ue ue)
-    {
-        ArgumentNullException.ThrowIfNull(Context.Ues);
-        ArgumentNullException.ThrowIfNull(ue);
-        Context.Ues.Update(ue);
-        await Context.SaveChangesAsync();
-    }
-
-    public async Task DeleteAsync(Guid id)  // 
-    {
-        ArgumentNullException.ThrowIfNull(Context.Ues);
-        var ue = await GetByIdAsync(id);
-        if (ue != null)
-        {
-            Context.Ues.Remove(ue);
-            await Context.SaveChangesAsync();
-        }
-    }
-
-    public async Task<List<Ue>> FindByConditionAsync(Expression<Func<Ue, bool>> condition)
-    {
-        ArgumentNullException.ThrowIfNull(Context.Ues);
-        return await Context.Ues.Where(condition).ToListAsync();
-    }
-}
-*/
-
-// ✅ NOUVEAU CODE : hérite de Repository<Ue> qui implémente déjà toutes les méthodes
 public class UeRepository(UniversiteDbContext context) : Repository<Ue>(context), IUeRepository
 {
-    // Toutes les méthodes CRUD sont héritées de Repository<Ue>
-    // Pas besoin d'implémentation supplémentaire
 }

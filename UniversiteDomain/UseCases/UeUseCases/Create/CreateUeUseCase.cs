@@ -31,16 +31,9 @@ public class CreateUeUseCase(IRepositoryFactory repositoryFactory)
         var repo = repositoryFactory.UeRepository();
         ArgumentNullException.ThrowIfNull(repo, nameof(repo));
 
-        // Vérification que l'intitulé contient plus de 3 caractères
         if (ue.Intitule.Length <= 3)
             throw new InvalidIntituleUeException(ue.Intitule + " - L'intitulé d'une UE doit contenir plus de 3 caractères");
 
-        // Vérification qu'aucune UE n'a déjà le même numéro
-        // ❌ ANCIEN CODE : utilise GetAllAsync puis filtre en mémoire (inefficace)
-        // var ues = await repo.GetAllAsync();
-        // var existeDeja = ues.Any(u => u.NumeroUe.Equals(ue.NumeroUe));
-
-        // ✅ NOUVEAU CODE : filtre directement en base de données (plus efficace)
         var ues = await repo.FindByConditionAsync(u => u.NumeroUe.Equals(ue.NumeroUe));
 
         if (ues.Count > 0)
