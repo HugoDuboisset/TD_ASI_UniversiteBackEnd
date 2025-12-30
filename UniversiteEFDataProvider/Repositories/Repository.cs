@@ -8,8 +8,8 @@ namespace UniversiteEFDataProvider.Repositories;
 public abstract class Repository<T>(UniversiteDbContext context) : IRepository<T>
     where T : class
 {
-    protected  readonly UniversiteDbContext Context = context;
-    
+    protected readonly UniversiteDbContext Context = context;
+
     public async Task<T> CreateAsync(T entity)
     {
         var res = Context.Add(entity);
@@ -18,20 +18,21 @@ public abstract class Repository<T>(UniversiteDbContext context) : IRepository<T
     }
     public async Task UpdateAsync(T entity)
     {
-        var res=Context.Set<T>().Update(entity);
+        var res = Context.Set<T>().Update(entity);
         await Context.SaveChangesAsync();
     }
-    
-    public async Task DeleteAsync(long id)
+
+    public virtual async Task<int> DeleteAsync(long id)
     {
         var entity = await FindAsync(id);
-        
+
         if (entity != null)
         {
             try
             {
                 Context.Remove(entity);
                 await Context.SaveChangesAsync();
+                return 1;
             }
             catch (Exception e)
             {
@@ -39,14 +40,15 @@ public abstract class Repository<T>(UniversiteDbContext context) : IRepository<T
                 throw;
             }
         }
+        return 0;
     }
-    
+
     public async Task DeleteAsync(T entity)
     {
         Context.Remove(entity);
         await Context.SaveChangesAsync();
     }
-    
+
     // Clé primaire non composée
     public async Task<T?> FindAsync(long id)
     {
@@ -57,7 +59,7 @@ public abstract class Repository<T>(UniversiteDbContext context) : IRepository<T
     {
         return await Context.Set<T>().FindAsync(keyValues);
     }
-    
+
     public async Task<List<T>> FindByConditionAsync(Expression<Func<T, bool>> condition)
     {
         return await Context.Set<T>().Where(condition).ToListAsync();
