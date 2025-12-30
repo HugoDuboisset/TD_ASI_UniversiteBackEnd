@@ -47,14 +47,14 @@ public class AddUeDansParcoursUseCase(IRepositoryFactory repositoryFactory)
         // Vérifions tout d'abord que nous sommes bien connectés aux datasources
         ArgumentNullException.ThrowIfNull(repositoryFactory);
         ArgumentNullException.ThrowIfNull(repositoryFactory.UeRepository());
-        ArgumentNullException.ThrowIfNull(repositoryFactory.UeRepository());
+        ArgumentNullException.ThrowIfNull(repositoryFactory.ParcoursRepository());
         
         // On recherche l'ue
         List<Ue> ue = await repositoryFactory.UeRepository().FindByConditionAsync(e=>e.Id.Equals(idUe));;
-        if (ue ==null) throw new UeNotFoundException(idUe.ToString());
+        if (ue ==null || ue.Count == 0) throw new UeNotFoundException(idUe.ToString());
         // On recherche le parcours
         List<Parcours> parcours = await repositoryFactory.ParcoursRepository().FindByConditionAsync(p=>p.Id.Equals(idParcours));;
-        if (parcours ==null) throw new ParcoursNotFoundException(idParcours.ToString());
+        if (parcours ==null || parcours.Count == 0) throw new ParcoursNotFoundException(idParcours.ToString());
         
         // On vérifie que l'Ue n'est pas déjà dans le parcours
         if (parcours[0].UesEnseignees!=null)

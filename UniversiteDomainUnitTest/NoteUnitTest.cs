@@ -26,21 +26,21 @@ public class NoteUnitTest
         float valeur = 15.5f;
 
         // Créer l'étudiant
-        Etudiant etudiant = new Etudiant 
-        { 
-            Id = etudiantId, 
-            NumEtud = "E001", 
-            Nom = "Dupont", 
+        Etudiant etudiant = new Etudiant
+        {
+            Id = etudiantId,
+            NumEtud = "E001",
+            Nom = "Dupont",
             Prenom = "Jean",
             Email = "jean.dupont@test.fr"
         };
 
         // Créer l'UE
-        Ue ue = new Ue 
-        { 
-            Id = ueId, 
-            NumeroUe = "UE001", 
-            Intitule = "Programmation" 
+        Ue ue = new Ue
+        {
+            Id = ueId,
+            NumeroUe = "UE001",
+            Intitule = "Programmation"
         };
 
         // Créer le parcours avec l'étudiant inscrit et l'UE enseignée
@@ -79,10 +79,13 @@ public class NoteUnitTest
             .Setup(repo => repo.GetByIdAsync(etudiantId, ueId))
             .ReturnsAsync((Note?)null);
 
-        // Setup - Ajout de la note
+        //  ANCIEN CODE : Utilisait AddAsync
+        // mockNoteRepo.Setup(repo => repo.AddAsync(It.IsAny<Note>())).Returns(Task.CompletedTask);
+
+        // ✅ NOUVEAU CODE : Utilise CreateAsync qui retourne la note créée
         mockNoteRepo
-            .Setup(repo => repo.AddAsync(It.IsAny<Note>()))
-            .Returns(Task.CompletedTask);
+            .Setup(repo => repo.CreateAsync(It.IsAny<Note>()))
+            .ReturnsAsync(new Note { EtudiantId = etudiantId, UeId = ueId, Valeur = valeur });
 
         // Mock de la factory
         var mockFactory = new Mock<IRepositoryFactory>();
@@ -106,7 +109,7 @@ public class NoteUnitTest
         mockEtudiantRepo.Verify(repo => repo.FindByConditionAsync(It.IsAny<Expression<Func<Etudiant, bool>>>()), Times.Once);
         mockUeRepo.Verify(repo => repo.FindByConditionAsync(It.IsAny<Expression<Func<Ue, bool>>>()), Times.Once);
         mockParcoursRepo.Verify(repo => repo.FindByConditionAsync(It.IsAny<Expression<Func<Parcours, bool>>>()), Times.Once);
-        mockNoteRepo.Verify(repo => repo.AddAsync(It.IsAny<Note>()), Times.Once);
+        mockNoteRepo.Verify(repo => repo.CreateAsync(It.IsAny<Note>()), Times.Once);
         mockFactory.Verify(f => f.SaveChangesAsync(), Times.Once);
     }
 

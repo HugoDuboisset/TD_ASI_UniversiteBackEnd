@@ -1,4 +1,5 @@
-﻿using Moq;
+﻿using System.Linq.Expressions;
+using Moq;
 using UniversiteDomain.DataAdapters;
 using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 using UniversiteDomain.Entities;
@@ -27,14 +28,12 @@ public class UeUnitTest
         // Créons le mock du repository
         var mockUeRepository = new Mock<IUeRepository>();
 
-        // Simulation de GetAllAsync - aucune UE n'existe avec ce numéro
-        var reponseGetAll = new List<Ue>();
-        mockUeRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(reponseGetAll);
+        var reponseVide = new List<Ue>();
+        mockUeRepository.Setup(repo => repo.FindByConditionAsync(It.IsAny<Expression<Func<Ue, bool>>>())).ReturnsAsync(reponseVide);
 
-        // Simulation de AddAsync - on simule l'ajout
-        mockUeRepository.Setup(repo => repo.AddAsync(It.IsAny<Ue>())).Returns(Task.CompletedTask);
+        Ue ueCreee = new Ue { Id = 1, NumeroUe = numeroUe, Intitule = intitule };
+        mockUeRepository.Setup(repo => repo.CreateAsync(It.IsAny<Ue>())).ReturnsAsync(ueCreee);
 
-        // Créons une fausse factory qui retourne ce repository
         var mockFactory = new Mock<IRepositoryFactory>();
         mockFactory.Setup(facto => facto.UeRepository()).Returns(mockUeRepository.Object);
         mockFactory.Setup(facto => facto.SaveChangesAsync()).Returns(Task.CompletedTask);
@@ -46,10 +45,10 @@ public class UeUnitTest
         // Assert
         Assert.That(ueTestee.NumeroUe, Is.EqualTo(numeroUe));
         Assert.That(ueTestee.Intitule, Is.EqualTo(intitule));
-        
+
         // Vérification que les méthodes ont bien été appelées
-        mockUeRepository.Verify(repo => repo.GetAllAsync(), Times.Once);
-        mockUeRepository.Verify(repo => repo.AddAsync(It.IsAny<Ue>()), Times.Once);
+        mockUeRepository.Verify(repo => repo.FindByConditionAsync(It.IsAny<Expression<Func<Ue, bool>>>()), Times.Once);
+        mockUeRepository.Verify(repo => repo.CreateAsync(It.IsAny<Ue>()), Times.Once);
         mockFactory.Verify(facto => facto.SaveChangesAsync(), Times.Once);
     }
 
@@ -64,18 +63,18 @@ public class UeUnitTest
 
         // Créons le mock du repository
         var mockUeRepository = new Mock<IUeRepository>();
-        
+
         // Créons une fausse factory
         var mockFactory = new Mock<IRepositoryFactory>();
         mockFactory.Setup(facto => facto.UeRepository()).Returns(mockUeRepository.Object);
 
         // Act & Assert
         CreateUeUseCase useCase = new CreateUeUseCase(mockFactory.Object);
-        
+
         var exception = Assert.ThrowsAsync<InvalidIntituleUeException>(
             async () => await useCase.ExecuteAsync(ueAvecIntituleInvalide)
         );
-        
+
         Assert.That(exception.Message, Does.Contain("plus de 3 caractères"));
     }
 
@@ -87,16 +86,15 @@ public class UeUnitTest
         string intitule = "Base de données";
 
         Ue nouvelleUe = new Ue { NumeroUe = numeroUe, Intitule = intitule };
-        
+
         // Une UE existe déjà avec ce numéro
         Ue ueExistante = new Ue { Id = 1, NumeroUe = numeroUe, Intitule = "Autre intitulé" };
 
         // Créons le mock du repository
         var mockUeRepository = new Mock<IUeRepository>();
-        
-        // Simulation de GetAllAsync - retourne une UE avec le même numéro
-        var reponseGetAll = new List<Ue> { ueExistante };
-        mockUeRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(reponseGetAll);
+
+        var reponseAvecDoublon = new List<Ue> { ueExistante };
+        mockUeRepository.Setup(repo => repo.FindByConditionAsync(It.IsAny<Expression<Func<Ue, bool>>>())).ReturnsAsync(reponseAvecDoublon);
 
         // Créons une fausse factory
         var mockFactory = new Mock<IRepositoryFactory>();
@@ -104,11 +102,11 @@ public class UeUnitTest
 
         // Act & Assert
         CreateUeUseCase useCase = new CreateUeUseCase(mockFactory.Object);
-        
+
         var exception = Assert.ThrowsAsync<DuplicateNumeroUeException>(
             async () => await useCase.ExecuteAsync(nouvelleUe)
         );
-        
+
         Assert.That(exception.Message, Does.Contain("déjà affecté"));
     }
 
@@ -122,12 +120,11 @@ public class UeUnitTest
         // Créons le mock du repository
         var mockUeRepository = new Mock<IUeRepository>();
 
-        // Simulation de GetAllAsync - aucune UE n'existe
-        var reponseGetAll = new List<Ue>();
-        mockUeRepository.Setup(repo => repo.GetAllAsync()).ReturnsAsync(reponseGetAll);
+        var reponseVide = new List<Ue>();
+        mockUeRepository.Setup(repo => repo.FindByConditionAsync(It.IsAny<Expression<Func<Ue, bool>>>())).ReturnsAsync(reponseVide);
 
-        // Simulation de AddAsync
-        mockUeRepository.Setup(repo => repo.AddAsync(It.IsAny<Ue>())).Returns(Task.CompletedTask);
+        Ue ueCreee = new Ue { Id = 4, NumeroUe = numeroUe, Intitule = intitule };
+        mockUeRepository.Setup(repo => repo.CreateAsync(It.IsAny<Ue>())).ReturnsAsync(ueCreee);
 
         // Créons une fausse factory
         var mockFactory = new Mock<IRepositoryFactory>();

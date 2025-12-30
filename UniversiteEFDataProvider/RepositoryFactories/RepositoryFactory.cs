@@ -5,13 +5,13 @@ using UniversiteEFDataProvider.Repositories;
 
 namespace UniversiteEFDataProvider.RepositoryFactories;
 
-public class RepositoryFactory (UniversiteDbContext context): IRepositoryFactory
+public class RepositoryFactory(UniversiteDbContext context) : IRepositoryFactory
 {
     private IParcoursRepository? _parcours;
     private IEtudiantRepository? _etudiants;
     private IUeRepository? _ues;
     private INoteRepository? _notes;
-    
+
     public IParcoursRepository ParcoursRepository()
     {
         if (_parcours == null)
@@ -48,17 +48,19 @@ public class RepositoryFactory (UniversiteDbContext context): IRepositoryFactory
         return _notes;
 
     }
-       
+
     public async Task SaveChangesAsync()
     {
-        context.SaveChangesAsync().Wait();
+        await context.SaveChangesAsync();
     }
+
     public async Task EnsureCreatedAsync()
     {
-        context.Database.EnsureCreated();
+        await context.Database.EnsureCreatedAsync();
     }
+
     public async Task EnsureDeletedAsync()
     {
-        context.Database.EnsureDeleted();
+        await context.Database.EnsureDeletedAsync();
     }
 }

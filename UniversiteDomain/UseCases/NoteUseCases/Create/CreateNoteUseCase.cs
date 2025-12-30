@@ -44,7 +44,7 @@ public class CreateNoteUseCase(IRepositoryFactory repositoryFactory)
         if (noteExistante == null)
         {
             // Créer une nouvelle note
-            await repositoryFactory.NoteRepository().AddAsync(note);
+            await repositoryFactory.NoteRepository().CreateAsync(note);
         }
         else
         {
@@ -79,7 +79,7 @@ public class CreateNoteUseCase(IRepositoryFactory repositoryFactory)
         // Vérifier que l'étudiant existe
         var etudiants = await repositoryFactory.EtudiantRepository()
             .FindByConditionAsync(e => e.Id.Equals(etudiantId));
-        
+
         if (etudiants == null || etudiants.Count == 0)
         {
             throw new EtudiantNotFoundException($"L'étudiant avec l'ID {etudiantId} n'existe pas");
@@ -88,7 +88,7 @@ public class CreateNoteUseCase(IRepositoryFactory repositoryFactory)
         // Vérifier que l'UE existe
         var ues = await repositoryFactory.UeRepository()
             .FindByConditionAsync(u => u.Id.Equals(ueId));
-        
+
         if (ues == null || ues.Count == 0)
         {
             throw new UeNotFoundException(ueId.ToString());
@@ -109,7 +109,7 @@ public class CreateNoteUseCase(IRepositoryFactory repositoryFactory)
         bool ueInParcours = false;
         foreach (var parcours in tousLesParcours)
         {
-            if (parcours.UesEnseignees != null && 
+            if (parcours.UesEnseignees != null &&
                 parcours.UesEnseignees.Any(u => u.Id == ueId))
             {
                 ueInParcours = true;

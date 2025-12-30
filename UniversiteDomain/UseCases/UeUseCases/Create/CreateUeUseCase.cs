@@ -1,6 +1,6 @@
-﻿using UniversiteDomain.Entities;
+﻿using UniversiteDomain.DataAdapters.DataAdaptersFactory;
+using UniversiteDomain.Entities;
 using UniversiteDomain.Exceptions.UeExceptions;
-using UniversiteDomain.DataAdapters.DataAdaptersFactory;
 
 namespace UniversiteDomain.UseCases.UeUseCases.Create;
 
@@ -16,9 +16,9 @@ public class CreateUeUseCase(IRepositoryFactory repositoryFactory)
     {
         await CheckBusinessRules(ue);
         var repo = repositoryFactory.UeRepository();
-        await repo.AddAsync(ue);
+        Ue createdUe = await repo.CreateAsync(ue);
         await repositoryFactory.SaveChangesAsync();
-        return ue;
+        return createdUe;
     }
 
     private async Task CheckBusinessRules(Ue ue)
@@ -36,10 +36,14 @@ public class CreateUeUseCase(IRepositoryFactory repositoryFactory)
             throw new InvalidIntituleUeException(ue.Intitule + " - L'intitulé d'une UE doit contenir plus de 3 caractères");
 
         // Vérification qu'aucune UE n'a déjà le même numéro
-        var ues = await repo.GetAllAsync();
-        var existeDeja = ues.Any(u => u.NumeroUe.Equals(ue.NumeroUe));
-        
-        if (existeDeja)
+        // ❌ ANCIEN CODE : utilise GetAllAsync puis filtre en mémoire (inefficace)
+        // var ues = await repo.GetAllAsync();
+        // var existeDeja = ues.Any(u => u.NumeroUe.Equals(ue.NumeroUe));
+
+        // ✅ NOUVEAU CODE : filtre directement en base de données (plus efficace)
+        var ues = await repo.FindByConditionAsync(u => u.NumeroUe.Equals(ue.NumeroUe));
+
+        if (ues.Count > 0)
             throw new DuplicateNumeroUeException(ue.NumeroUe + " - Ce numéro d'UE est déjà affecté à une UE");
     }
 }
