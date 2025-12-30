@@ -19,30 +19,28 @@ public class CreateNoteUseCase(IRepositoryFactory repositoryFactory)
     {
         await CheckBusinessRules(etudiantId, ueId, valeur);
 
-        // Vérifier si la note existe déjà
         var noteExistante = await repositoryFactory.NoteRepository()
             .GetByIdAsync(etudiantId, ueId);
 
-        Note note = new Note
-        {
-            EtudiantId = etudiantId,
-            UeId = ueId,
-            Valeur = valeur
-        };
-
         if (noteExistante == null)
         {
-            // Créer une nouvelle note
+            Note note = new Note
+            {
+                EtudiantId = etudiantId,
+                UeId = ueId,
+                Valeur = valeur
+            };
             await repositoryFactory.NoteRepository().CreateAsync(note);
+            await repositoryFactory.SaveChangesAsync();
+            return note;
         }
         else
         {
-            // Mettre à jour la note existante
-            await repositoryFactory.NoteRepository().UpdateAsync(note);
+            noteExistante.Valeur = valeur;
+            await repositoryFactory.NoteRepository().UpdateAsync(noteExistante);
+            await repositoryFactory.SaveChangesAsync();
+            return noteExistante;
         }
-
-        await repositoryFactory.SaveChangesAsync();
-        return note;
     }
 
     private async Task CheckBusinessRules(long etudiantId, long ueId, float valeur)

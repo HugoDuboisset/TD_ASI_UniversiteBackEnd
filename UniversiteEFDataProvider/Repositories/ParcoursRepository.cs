@@ -1,4 +1,5 @@
-﻿using UniversiteDomain.DataAdapters;
+﻿using Microsoft.EntityFrameworkCore;
+using UniversiteDomain.DataAdapters;
 using UniversiteDomain.Entities;
 using UniversiteEFDataProvider.Data;
 
@@ -11,7 +12,7 @@ public class ParcoursRepository(UniversiteDbContext context) : Repository<Parcou
         ArgumentNullException.ThrowIfNull(Context.Etudiants);
         return await Task.FromResult(Context.Etudiants.Count(e => e.ParcoursSuivi != null && e.ParcoursSuivi.Id == idParcours));
     }
-    
+
     public async Task<int> GetNombreEtudiantsAsync(Parcours parcours)
     {
         return await GetNombreEtudiantsAsync(parcours.Id);
@@ -21,18 +22,18 @@ public class ParcoursRepository(UniversiteDbContext context) : Repository<Parcou
     {
         ArgumentNullException.ThrowIfNull(Context.Parcours);
         ArgumentNullException.ThrowIfNull(Context.Etudiants);
-        
+
         Parcours parcours = (await Context.Parcours.FindAsync(idParcours))!;
         Etudiant etudiant = (await Context.Etudiants.FindAsync(idEtudiant))!;
-        
+
         if (parcours.Inscrits == null)
         {
             parcours.Inscrits = new List<Etudiant>();
         }
-        
+
         parcours.Inscrits.Add(etudiant);
         await Context.SaveChangesAsync();
-        
+
         return parcours;
     }
 
@@ -52,22 +53,22 @@ public class ParcoursRepository(UniversiteDbContext context) : Repository<Parcou
     {
         ArgumentNullException.ThrowIfNull(Context.Parcours);
         ArgumentNullException.ThrowIfNull(Context.Etudiants);
-        
+
         Parcours parcours = (await Context.Parcours.FindAsync(idParcours))!;
-        
+
         if (parcours.Inscrits == null)
         {
             parcours.Inscrits = new List<Etudiant>();
         }
-        
+
         foreach (var idEtudiant in idEtudiants)
         {
             Etudiant etudiant = (await Context.Etudiants.FindAsync(idEtudiant))!;
             parcours.Inscrits.Add(etudiant);
         }
-        
+
         await Context.SaveChangesAsync();
-        
+
         return parcours;
     }
 
@@ -75,18 +76,18 @@ public class ParcoursRepository(UniversiteDbContext context) : Repository<Parcou
     {
         ArgumentNullException.ThrowIfNull(Context.Parcours);
         ArgumentNullException.ThrowIfNull(Context.Ues);
-        
+
         Parcours parcours = (await Context.Parcours.FindAsync(idParcours))!;
         Ue ue = (await Context.Ues.FindAsync(idUe))!;
-        
+
         if (parcours.UesEnseignees == null)
         {
             parcours.UesEnseignees = new List<Ue>();
         }
-        
+
         parcours.UesEnseignees.Add(ue);
         await Context.SaveChangesAsync();
-        
+
         return parcours;
     }
 
@@ -106,22 +107,38 @@ public class ParcoursRepository(UniversiteDbContext context) : Repository<Parcou
     {
         ArgumentNullException.ThrowIfNull(Context.Parcours);
         ArgumentNullException.ThrowIfNull(Context.Ues);
-        
+
         Parcours parcours = (await Context.Parcours.FindAsync(idParcours))!;
-        
+
         if (parcours.UesEnseignees == null)
         {
             parcours.UesEnseignees = new List<Ue>();
         }
-        
+
         foreach (var idUe in idUes)
         {
             Ue ue = (await Context.Ues.FindAsync(idUe))!;
             parcours.UesEnseignees.Add(ue);
         }
-        
+
         await Context.SaveChangesAsync();
-        
+
         return parcours;
+    }
+    //////// AJouts pour chapitre 8
+    public async Task<List<Parcours>> GetParcoursWithStudentsByUeAsync(long ueId)
+    {
+        ArgumentNullException.ThrowIfNull(Context.Parcours);
+
+        // Charger tous les parcours avec leurs UEs et étudiants
+        var allParcours = await Context.Parcours
+            .Include(p => p.UesEnseignees)
+            .Include(p => p.Inscrits)
+            .ToListAsync();
+
+        // Filtrer en mémoire les parcours qui enseignent l'UE donnée
+        return allParcours
+            .Where(p => p.UesEnseignees != null && p.UesEnseignees.Any(u => u.Id == ueId))
+            .ToList();
     }
 }
