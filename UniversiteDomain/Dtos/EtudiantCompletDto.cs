@@ -12,7 +12,7 @@ public class EtudiantCompletDto
     public ParcoursDto ParcoursSuivi { get; set; }
     public List<NoteAvecUeDto> NotesObtenues { get; set; }=new();
 
-    public EtudiantCompletDto ToDto(Etudiant etudiant)
+    public EtudiantCompletDto ToDto(Etudiant etudiant) 
     {
         Id = etudiant.Id;
         NumEtud = etudiant.NumEtud;
